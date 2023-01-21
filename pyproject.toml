@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools >= 46.4.0"]
+build-backend = "setuptools.build_meta"
+
+# ================================== PYLINT ================================= #
+[tool.pylint.MASTER]
+init-hook = 'import os, sys; sys.path.append(f"{os.getcwd()}/venv/lib/python3.9/site-packages")'
+
+# We might need to whitelist some package if they are not fully supported by pylint :
+# https://github.com/samuelcolvin/pydantic/issues/1961#issuecomment-759522422
+extension-pkg-whitelist = [
+  "pydantic",
+  "aiohttp_pydantic"
+]
+
+# We need to disable a no_self_use in UT but it's optional from now:
+# https://pylint.pycqa.org/en/latest/whatsnew/2/2.14/summary.html#removed-checkers
+[tool.pylint.main]
+load-plugins = [
+  "pylint.extensions.no_self_use"
+]
+
+# DISABLING THE FOLLOWING ERRORS :
+#   C0114 : Missing module docstring
+#   E0402 : Attempted relative import beyond top-level package
+#   E1101 : Module 'xxx' has no 'yyy' member (no-member)
+#   R0902 : Too many instance attributes
+#   R0903 : Too few public methods
+#   W0107 : Unnecessary pass statement
+#   W0703 : Catching too general exception Exception
+#   W0511 : Implement FIXME instead of TODO
+#   W1203 : Use lazy formatting in logging functions
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+  "C0114",
+  "E0402",
+  "E1101",
+  "R0902",
+  "R0903",
+  "W0107",
+  "W0703",
+  "W0511",
+  "W1203"
+]
+max-line-length = 160
+min-similarity-lines = 16
+
+[tool.bandit.assert_used]
+skips =  ["*_test.py"]

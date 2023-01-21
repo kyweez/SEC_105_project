@@ -1,0 +1,6 @@
+pre-commit
+mypy
+pylint
+isort
+autopep8
+flake8
