@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Client certificates list</title>
+    <style>
+        /* Add CSS styles for the table layout */
+    </style>
+</head>
+
+<body>
+    <h1>Client certificates list</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Certificate name</th>
+                <th>Serial number</th>
+            </tr>
+        </thead>
+        <tbody id="certs-table">
+            <script>
+                // Get the data from local storage or a global variable
+                let clientCerts = JSON.parse(localStorage.getItem("clientCerts")) || clientCerts;
+                let clientCertsTable = document.getElementById('client-certs-table');
+
+                // Check if clientCerts exists before populating the table
+                if (clientCerts) {
+                    // Iterate over the data and create table rows
+                    for (let key in clientCerts) {
+                        let row = clientCertsTable.insertRow();
+                        let cell1 = row.insertCell(0);
+                        let cell2 = row.insertCell(1);
+                        cell1.innerHTML = key;
+                        cell2.innerHTML = `<a href="certificate-info.html?serial=${clientCerts[key]}&type=client">${clientCerts[key]}</a>`;
+                    }
+                } else {
+                    throw new Error('No client certificates found');
+                }
+            </script>
+        </tbody>
+    </table>
+    <script>
+        // Make API call to GET /certificates/client
+        fetch('/certificates/client')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Error getting client certificates');
+                }
+            })
+            .then(data => {
+                let clientCertsTable = document.getElementById('client-certs-table');
+                // Check if data exists before populating the table
+                if (data) {
+                    // Populate the table with the data from the API response
+                    for (let key in data) {
+                        let row = clientCertsTable.insertRow();
+                        let cell1 = row.insertCell(0);
+                        let cell2 = row.insertCell(1);
+                        cell1.innerHTML = key;
+                        cell2.innerHTML = `<a href="certificate-info.html?serial=${data[key]}&type=client">${data[key]}</a>`;
+                    }
+                    // Add event listeners to the serial number links to open certificate-info.html page
+                    let serialLinks = document.querySelectorAll("a[href^='certificate-info.html']");
+                    serialLinks.forEach(link => {
+                        link.addEventListener("click", function () {
+                            localStorage.setItem("clientCerts", JSON.stringify(data));
+                        });
+                    });
+                } else {
+                    throw new Error('No data returned from API');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert(error);
+            });
+    </script>
+</body>
+
+</html>

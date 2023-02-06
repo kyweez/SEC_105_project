@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SEC105 Project</title>
+    <style>
+        /* Add some margin to the top of the page and center the title */
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Center the button container and display them in a column */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Style the buttons */
+        button {
+            margin: 20px;
+            padding: 20px 40px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Add hover effect to buttons */
+        button:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Add a background image and lighten it */
+        body {
+            background-image: url("https://www.thesslstore.com/blog/wp-content/uploads/2020/02/public-key-infrastructure.jpg");
+            background-size: cover;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>SEC105 Project</h1>
+        <div class="button-container">
+            <button onclick="getServerCerts()">Get server certs list</button>
+            <button onclick="uploadClientCert()">Upload client cert</button>
+            <button onclick="getClientCerts()">Get client certs list</button>
+            <button onclick="handleMTLS()">Handle mTLS</button>
+        </div>
+    </div>
+
+    <script>
+        function getServerCerts() {
+            // Make API call to GET /certificates/server
+            fetch('/certificates/server')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Error getting server certificates');
+                    }
+                })
+                .then(data => {
+                    // Save the data in local storage or a global variable
+                    // Open the server-certs-list.html page
+                    window.location.href = 'server-certs-list.html';
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert(error);
+                });
+        }
+
+        function uploadClientCert() {
+            // Create a file input element
+            let input = document.createElement('input');
+            input.type = 'file';
+
+            // Listen for when a file is selected
+            input.addEventListener('change', (event) => {
+                let file = event.target.files[0];
+
+                // Check file extension
+                if (file.name.endsWith('.p12') || file.name.endsWith('.crt') || file.name.endsWith('.pem')) {
+                    // Store cert in a folder at the root of the project
+                    // you can use FormData() and fetch() or axios to send the file to the server and store it
+                    let formData = new FormData();
+                    formData.append('clientCert', file);
+                    fetch('/certificates/upload', {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => {
+                        if (response.ok) {
+                            alert('Certificate uploaded successfully!');
+                        } else {
+                            throw new Error('Error uploading certificate');
+                        }
+                    }).catch(error => {
+                        console.error(error);
+                        alert(error);
+                    });
+                } else {
+                    // Display error message if file is not a cert with correct file extension
+                    alert('Invalid file type. Please select a .p12, .crt or .pem file.');
+                }
+            });
+
+            // Prompt user to upload a cert
+            input.click();
+        }
+
+        function getClientCerts() {
+            // Make API call to GET /certificates/client
+            fetch('/certificates/client')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Error getting client certificates');
+                    }
+                })
+                .then(data => {
+                    // Save the data in local storage or a global variable
+                    localStorage.setItem("clientCerts", JSON.stringify(data));
+                    // Open the client-certs-list.html page
+                    window.location.href = 'client-certs-list.html';
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert(error);
+                });
+        }
+
+        function handleMTLS() {
+            // Open mtls.html page
+            window.location.href = 'mtls.html';
+        }
+    </script>
+</body>
+
+</html>

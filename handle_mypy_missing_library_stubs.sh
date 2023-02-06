@@ -14,6 +14,7 @@ getProjectPathFolder(){
 # Create a key : value dict where key == packageName and value == repository of the project
 declare -A packageDict
 packageDict['aiohttp_pydantic']='https://github.com/Maillol/aiohttp-pydantic'
+packageDict['cryptography']='https://github.com/pyca/cryptography'
 
 
 # Launch the stubs pacakge generation
